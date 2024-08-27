@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,18 @@ const Login = () => {
       navigate('/dashboard');
     } catch (error) {
       alert("Login failed");
+    }
+  };
+
+  const handleGoogleLoginSuccess = async (response) => {
+    try {
+      // Handle the response token by sending it to your backend
+      const token = response.credential;
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/google`, { token });
+      // You can manage navigation to dashboard upon successful login
+      navigate('/dashboard');
+    } catch (error) {
+      console.log("Google Login Error", error);
     }
   };
 
@@ -38,6 +51,13 @@ const Login = () => {
         <button onClick={handleLogin} className="w-full p-2 bg-blue-500 text-white rounded">
           Login
         </button>
+
+        <div className="my-4">
+          <GoogleLogin
+            onSuccess={handleGoogleLoginSuccess}
+            onError={() => console.log('Google Login Failed')}
+          />
+        </div>
       </div>
     </div>
   );
